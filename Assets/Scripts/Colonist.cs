@@ -26,8 +26,10 @@ public class Colonist : MonoBehaviour
         //移動したい。移動するのに必要なのは自分の位置と、行くべき場所。
         //自分の位置をtargetPositionまで移動させる
         //.は接続しと考えてOK
+
         transform.position = Vector3.MoveTowards(
             transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+        
         //もし、()内の条件だったら、
         if(Vector3.Distance(transform.position,targetPosition)<0.1f)
         {
