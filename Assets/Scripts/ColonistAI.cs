@@ -1,7 +1,11 @@
 using UnityEngine;
+//UnityEngineのUIの要素を使う宣言
+using UnityEngine.UI;
 
 public class ColonistAI : MonoBehaviour
 {
+   
+
     public enum ColonistState
     { 
         /// <summary>
@@ -17,10 +21,11 @@ public class ColonistAI : MonoBehaviour
 
     public ColonistState State;
 
+
     /// <summary>
     /// コロニストの状態を変更するためのタイマー
     /// [SerealizeField]のようなものを属性(Attritude)という
-    /// </summary>
+    /// <summary>
 
     [SerializeField]
     private float timer = 2f;
@@ -29,11 +34,36 @@ public class ColonistAI : MonoBehaviour
 
     private Vector3 targetPosition = new Vector3(2, 0, 2);
 
+
+    /// <summary>
+    /// <最大体力値>
+    /// </summary>
+   
+    public float MaxHealth = 100f;
+
+
+    /// <summary>
+    /// <既存の体力値>
+    /// </summary>
+    /// 
+    [SerializeField]
+    private float currentHealth;
+
+    public float GetCurrentHealth
+    {
+        get { return currentHealth; }
+
+    }
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         //コロニストの状態をIdele(待機)から始める
         State = ColonistState.Idle;
+
+        //現在の体力をmaxにする
+        currentHealth = MaxHealth;
 
     }
 
@@ -49,6 +79,8 @@ public class ColonistAI : MonoBehaviour
         {
 
             case ColonistState.Idle:
+
+                currentHealth += 2f* Time.deltaTime;
 
                 //caseとbreakの間に、caseの場合の処理を書く
 
@@ -79,6 +111,16 @@ public class ColonistAI : MonoBehaviour
                     transform.position = Vector3.MoveTowards(
                         transform.position, targetPosition, MoveSpeed * Time.deltaTime);
 
+                    //現在の体力値から1秒間で5ポイント体力を減らす
+                    currentHealth -= 5f * Time.deltaTime;
+
+                    if (currentHealth <= 20f)
+                    {
+
+                        //回復のために眠らせる
+                        State = ColonistState.Sleep;
+                    }
+
                     //もし、()内の条件だったら、
                     if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
                     {
@@ -102,10 +144,20 @@ public class ColonistAI : MonoBehaviour
                 //毎フレーム回転させ続ける
                 transform.Rotate(Vector3.up * 30f * Time.deltaTime);
 
+                //現在の体力を10P減らす
+                currentHealth -= 10f + Time.deltaTime;
+
+                //現在の体力が20ポイントを下回ったら
+                if (currentHealth <= 20f)
+                {
+
+                    //体力が20を下回ったら眠らせる
+                    State = ColonistState.Sleep;
+                }
 
                 if (timer <= 0f)
                 {
-                    State = ColonistState.Sleep;
+                    State = ColonistState.Idle;
                     timer = Random.Range(1f,5f);
                                       
                     //State = ColonistState.Idle;
@@ -117,9 +169,11 @@ public class ColonistAI : MonoBehaviour
                 break;
             case ColonistState.Sleep:
 
-                //もし、timerが0秒を下回ったら、StateをIdleに変更しましょう。
-                //timerを2秒で設定してください.
-                if (timer <= 0f)
+                //1秒間に8回復させる
+                currentHealth += 8f * Time.deltaTime;
+
+                //もし、コロニストの体力が完全に回復したら。
+                if (currentHealth >= MaxHealth)
                  {
                     State = ColonistState.Idle;
                     timer = 2f;
