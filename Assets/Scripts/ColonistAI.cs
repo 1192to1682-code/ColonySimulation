@@ -83,6 +83,13 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private MeshRenderer[] colonistMeshRenderers = new MeshRenderer[2];
 
+    /// <summary>
+    /// 掘削スキルが高いほど速い
+    /// </summary>
+  
+    [Range(0.5f,3f)]
+    public float MiningSkill = 1f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -104,6 +111,7 @@ public class ColonistAI : MonoBehaviour
             RecoveryRate = 2f;
             FatigueRate = 0.5f;
             MoveSpeed = 5f;
+            MiningSkill = 3f;
 
             //foreach文は配列に対して、全ての要素に変更を加えたい時に使います
             foreach (var renderer in colonistMeshRenderers)
@@ -120,6 +128,8 @@ public class ColonistAI : MonoBehaviour
             RecoveryRate = 1f;
             FatigueRate = 1f;
             MoveSpeed = 2f;
+            MiningSkill = 2f;
+
 
             //foreach文は配列に対して、全ての要素に変更を加えたい時に使います
             foreach (var renderer in colonistMeshRenderers)
@@ -134,6 +144,7 @@ public class ColonistAI : MonoBehaviour
             RecoveryRate = 0.8f;
             FatigueRate = 2f;
             MoveSpeed = 0.5f;
+            MiningSkill = 1f;
 
             //foreach文は配列に対して、全ての要素に変更を加えたい時に使います
             foreach (var renderer in colonistMeshRenderers)
@@ -222,7 +233,8 @@ public class ColonistAI : MonoBehaviour
                 Debug.Log("Colonist is mining");
 
                 //毎フレーム回転させ続ける
-                transform.Rotate(Vector3.up * 30f * Time.deltaTime);
+                //1秒間にminingSkillが3の人は1秒間に360ド回転する
+                transform.Rotate(Vector3.up * 120f *MiningSkill* Time.deltaTime);
 
                 //現在の体力を10P減らす
                 currentHealth -=FatigueRate* 10f * Time.deltaTime;
