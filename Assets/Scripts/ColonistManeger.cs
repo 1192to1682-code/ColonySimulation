@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -38,6 +39,33 @@ public class ColonistManeger : MonoBehaviour
     public Transform WarehousePoint;
 
     /// <summary>
+    /// 住人につけられる名前
+    /// </summary>
+    private string[] possibleNames = {
+    "Taro",
+    "Hanako",
+    "Ken",
+    "Mika",
+    "Aki",
+    };
+
+    private List<string> usedName =new List<string>();
+    private string GetUniqueName() 
+    {
+        string name;
+        //doの中に書かれている処理をwhileの条件の間、ｌ繰り返す
+        do {
+            name = possibleNames[Random.Range(0, possibleNames.Length)];
+        } while (usedName.Contains(name)&&
+        usedName.Count<possibleNames.Length);
+        
+        //listにランダムに指定された名前を追加する
+        usedName.Add(name);
+        //stringのメソッド()の場合はstringの何かをかえしてあげる必要あり
+        return name;
+    }
+
+    /// <summary>
     /// 市場の位置
     /// </summary>
     public Transform MarketPoint;
@@ -60,6 +88,9 @@ public class ColonistManeger : MonoBehaviour
 
             //一斉命令用のColonistAIを生成したGameObjectから取得
             Colonists[i] = instantiateObject.GetComponent<ColonistAI>();
+
+            //生成された住人に名前をつける
+            Colonists[i].gameObject.name = GetUniqueName();
 
             //コロニストに採掘場の場所を教える
             Colonists[i].MinePoint = MinePoint.position;
