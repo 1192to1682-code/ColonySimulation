@@ -11,7 +11,10 @@ public class ColonistUIManager : MonoBehaviour
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+   /// <summary>
+   /// awake()はstartを実行前に実行される。初期化用メソッド。
+   /// </summary>
+    void Awake()
     {
 
         //GercomponentInchildrenはヒエラルキーwindowの

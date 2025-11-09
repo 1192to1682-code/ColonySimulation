@@ -1,5 +1,5 @@
-using UnityEngine;
 //UnityEngineのUIの要素を使う宣言
+using UnityEngine;
 using UnityEngine.UI;
 
 public class ColonistAI : MonoBehaviour
@@ -15,7 +15,10 @@ public class ColonistAI : MonoBehaviour
     Idle, //待機
     Move,　//移動
     Mine,　//掘削
-    Sleep　//就寝
+    Sleep,　//就寝
+　　Carry,//運ぶ
+  Rest,//休憩
+　　Dead //死亡
 
     }
 
@@ -33,6 +36,14 @@ public class ColonistAI : MonoBehaviour
     public float MoveSpeed = 2.0f;
 
     private Vector3 targetPosition = new Vector3(2, 0, 2);
+
+    public Vector3 tarnetPosition = new Vector3(2, 0, 2);
+
+
+    /// <summary>
+    /// 採掘場の位置
+    /// </summary>
+    public Vector3 MinePoint;
 
 
     /// <summary>
@@ -89,6 +100,31 @@ public class ColonistAI : MonoBehaviour
   
     [Range(0.5f,3f)]
     public float MiningSkill = 1f;
+
+    public int Minedsource = 10;
+
+    /// <summary>
+    /// 空腹度
+    /// </summary>
+    private float hunger = 100f;
+
+    /// <summary>
+    /// ストレス
+    /// </summary>
+
+    public float stress = 0f;
+
+    public bool IsAlive
+    {
+        //boolは真偽の判定になるので、条件を作ることができます
+        //今回は体力があって、空腹度も飢えていないとします
+        //||は""もしくは""です。
+        get { return currentHealth > 0 || hunger > 0; }
+    }
+
+    public Transform WareHouse;
+
+    public Transform MarketPosition;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -161,9 +197,23 @@ public class ColonistAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //!は否定の意味。!（bool変数）でbool型の変数の反対の判定をします。
+        //生存していなかったら
+        if (!IsAlive) {
+
+            State = ColonistState.Dead;
+            Debug.Log($"死亡しました");
+            return;
+        }
         //1フレームにかかった時間をtimerから減算していきます
 
         timer -= Time.deltaTime;
+
+        //1秒間に2ポイントづつ空腹になる
+        hunger -= 2f * Time.deltaTime;
+
+        //1秒間に1ポイントづつ、ストレスがかかっていきます
+        stress += 1f * Time.deltaTime;
 
         //小かっこの中の値(変数)を使って処理を分岐(switch)させます
         switch (State)
@@ -182,8 +232,7 @@ public class ColonistAI : MonoBehaviour
 
                     State = ColonistState.Move;
                     //ターゲットポジションを決めてあげる
-                            targetPosition = new Vector3(
-                            Random.Range(-5f, 5f), 0, Random.Range(-5f, 5f));
+                    targetPosition = MinePoint;
 
                     
 
@@ -204,7 +253,13 @@ public class ColonistAI : MonoBehaviour
 
                     //現在の体力値から1秒間で5ポイント体力を減らす
                     currentHealth -=FatigueRate* 5f * Time.deltaTime;
+                    //空腹度も1秒間に5ポイトづつ回復
+                    hunger += 5f * Time.deltaTime;
 
+                    //ストレスも1秒間にポイントづつ現象する
+                    stress -= 5f * Time.deltaTime;
+
+                   
                     if (currentHealth <= 20f)
                     {
 
@@ -216,14 +271,13 @@ public class ColonistAI : MonoBehaviour
                     if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
                     {
 
+                     
                         //次の行動をおこなう
                         State = ColonistState.Mine;
                         //掘削時間を1～5秒にする
                         timer = Random.Range(1f,5f);
-
-                     
+                                             
                     }
-
 
                 }
 
@@ -249,13 +303,63 @@ public class ColonistAI : MonoBehaviour
 
                 if (timer <= 0f)
                 {
+                    int mined = Mathf.RoundToInt(10 * MiningSkill);
+                    Minedsource += mined;
+                    Debug.Log($"採掘完了");
+
                     State = ColonistState.Idle;
                     timer = Random.Range(1f,5f);
-                                      
-                    //State = ColonistState.Idle;
-                    //timer = 2f;
-                    //StateをColonistState.Sleepに変更してください。
-                    //timerを10秒で設定してください。
+
+                    State = ColonistState.Carry;
+
+                    
+                    //移動先を倉庫の位置にする
+                    targetPosition = WareHouse.position;
+
+
+                }
+
+                break;
+                               
+            case ColonistState.Carry://運ぶ状態
+                transform.position = Vector3.MoveTowards(
+                       transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+
+
+                //体力が回復するまで休ませる？
+                //体力があったらもう1回Moveにして採掘場に向かわせるか。
+                //休憩場所に言って、休憩する.
+                if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+                {
+
+                    //次の行動をおこなう(休憩)
+                    State = ColonistState.Rest;
+                    //掘削時間を1～5秒にする
+                    timer = Random.Range(1f, 5f);
+
+                    targetPosition = MarketPosition.position;
+
+                }
+
+                break;
+
+            case ColonistState.Rest://休憩の状態
+                                transform.position = Vector3.MoveTowards(
+                       transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+                if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+                {
+
+                    hunger += 5f * Time.deltaTime;
+                    stress -=5f * Time.deltaTime;
+                    currentHealth +=RecoveryRate *2f* Time.deltaTime;
+
+                    if (currentHealth > 80f && hunger > 80)
+                    {
+                        timer = 1f;
+                        //状態を待機状態に戻す
+                        State = ColonistState.Idle;
+                    }
+
                 }
 
                 break;
@@ -263,9 +367,8 @@ public class ColonistAI : MonoBehaviour
 
                 //1秒間に8回復させる
                 currentHealth +=RecoveryRate* 8f * Time.deltaTime;
-
-                //もし、コロニストの体力が完全に回復したら。
                 if (currentHealth >= MaxHealth)
+                                       
                  {
                     State = ColonistState.Idle;
                     timer = 2f;
