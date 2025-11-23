@@ -7,7 +7,7 @@ public class JobSwitchUI : MonoBehaviour
 {
     /// <summary>
     /// 
-    /// 
+    /// ColonistAIÇ…íºê⁄ÅAJobÇÃïœçXÇçsÇ§ÇΩÇﬂ
     /// </summary>
     public ColonistAI ColonistAI;
 
@@ -53,8 +53,10 @@ public class JobSwitchUI : MonoBehaviour
     }
     void UpdateLabel()
     {
-     JobLabel.text = $"Job:{ColonistAI.Job}";
-
+        if (ColonistAI != null)
+        {
+            JobLabel.text = $"Job:{ColonistAI.Job}";
+        }
     }
     private void Update()
     {

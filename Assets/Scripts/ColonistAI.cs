@@ -20,12 +20,12 @@ public class ColonistAI : MonoBehaviour
 
     public ColonistState State;
 
-    public enum JobType{
-Invalid = -1,//定義されていない
+    public enum JobType
+    {
+        Invalid = -1,//定義されていない
         Miner,//採掘者
-        Carrier//運搬者 
-
-}
+        Carrier//運搬者
+    }
     //一旦全ての住人は採掘者とする
     public JobType Job = JobType.Miner;
 
@@ -348,18 +348,17 @@ Invalid = -1,//定義されていない
                 return;
 
             }
-            else if (Job == JobType.Miner)
-            { //共有資産が100を越えたらMineの人もCarryする
+        }
 
-                if (Minesite.SharedMinedResource > 100)
+        else if (Job == JobType.Miner)
+        { //共有資産が100を越えたらMineの人もCarryする
 
-                {
-                    Job = JobType.Carrier;
-                    return;
-                }
-
-
+            if (Minesite.SharedMinedResource > 100)
+            {
+                Job = JobType.Carrier;
+                return;
             }
+        }
 
             // 仮で採掘アニメーション再生の代わりにログを出力します
             Debug.Log("Colonist is mining!");
@@ -372,23 +371,23 @@ Invalid = -1,//定義されていない
             currentHealth -= FatigueRate * 10f * Time.deltaTime;
 
             // 現在の体力が20ポイントより少なくなったら
-            if (currentHealth <= 20f)
-            {
+        if (currentHealth <= 20f)
+        {
                 // 体力を回復させるためにSleepにする
                 State = ColonistState.Sleep;
-            }
+        }
 
-            if (timer <= 0f)
-            {
+        if (timer <= 0f)
+        {
                 int mined = Mathf.RoundToInt(10 * MiningSkill);
 
 
                 //MinedResource += mined;
                 //Debug.Log($"採掘完了{mined}(合計{MinedResource})");
                 Minesite.AddResouce(mined);
-                Debug.Log($"採掘完了{mined}");
-
-                MinedResource = 0;
+                Debug.Log($"採掘完了{mined}" +
+                    $"(採掘場の合計{Minesite.SharedMinedResource})");
+                 MinedResource = 0;
 
                 timer = Random.Range(1f, 15f);
                 // 掘り終わったら運ぶという状態にします
@@ -402,7 +401,6 @@ Invalid = -1,//定義されていない
                 }
 
                 else if (Job == JobType.Carrier)
-
                 {
                     //掘り終わったら運ぶという状態にする
                     State = ColonistState.Carry;
@@ -419,15 +417,15 @@ Invalid = -1,//定義されていない
 
                     else
                     {
-                        //採掘場の旧友資産がキャパシティに到達していなかったら、自分も採掘を行う
+                        //採掘場の共有資産がキャパシティに到達していなかったら、自分も採掘を行う
                         State = ColonistState.Mine;
                     }
 
 
                 }
 
-            }
         }
+        
     }
 
     /// <summary>
