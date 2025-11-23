@@ -343,80 +343,90 @@ Invalid = -1,//定義されていない
 
                 //移動先を倉庫の位置にする
                 targetPosition = Warehouse.position;
-                
+
                 //ここから下の処理は行わない
                 return;
 
             }
-                   
+            else if (Job == JobType.Miner)
+            { //共有資産が100を越えたらMineの人もCarryする
 
-        }
-                
-        // 仮で採掘アニメーション再生の代わりにログを出力します
-        Debug.Log("Colonist is mining!");
+                if (Minesite.SharedMinedResource > 100)
 
-        // 毎フレーム回転させ続ける
-        // 1秒間にminingSkillが3の人は360°一回転できる
-        transform.Rotate(Vector3.up * 120f * MiningSkill * Time.deltaTime);
+                {
+                    Job = JobType.Carrier;
+                    return;
+                }
 
-        // 現在の体力を1秒間に10ポイント減らします
-        currentHealth -= FatigueRate * 10f * Time.deltaTime;
-
-        // 現在の体力が20ポイントより少なくなったら
-        if (currentHealth <= 20f)
-        {
-            // 体力を回復させるためにSleepにする
-            State = ColonistState.Sleep;
-        }
-
-        if (timer <= 0f)
-        {
-            int mined = Mathf.RoundToInt(10 * MiningSkill);
-
-
-            //MinedResource += mined;
-            //Debug.Log($"採掘完了{mined}(合計{MinedResource})");
-            Minesite.AddResouce(mined);
-            Debug.Log($"採掘完了{mined}");
-
-            MinedResource = 0;
-
-            timer = Random.Range(1f, 15f);
-            // 掘り終わったら運ぶという状態にします
-
-            if (Job == JobType.Miner)
-
-            {
-                //掘り終わったらもう一度採掘します
-                State = ColonistState.Mine;
 
             }
 
-            else if (Job == JobType.Carrier)
+            // 仮で採掘アニメーション再生の代わりにログを出力します
+            Debug.Log("Colonist is mining!");
 
+            // 毎フレーム回転させ続ける
+            // 1秒間にminingSkillが3の人は360°一回転できる
+            transform.Rotate(Vector3.up * 120f * MiningSkill * Time.deltaTime);
+
+            // 現在の体力を1秒間に10ポイント減らします
+            currentHealth -= FatigueRate * 10f * Time.deltaTime;
+
+            // 現在の体力が20ポイントより少なくなったら
+            if (currentHealth <= 20f)
             {
-                //掘り終わったら運ぶという状態にする
-                State = ColonistState.Carry;
-                                //移動先を倉庫の位置にする
-                targetPosition = Warehouse.position;
+                // 体力を回復させるためにSleepにする
+                State = ColonistState.Sleep;
+            }
 
-                //採掘場の共有資産が自分が持てるキャパシティに到達しているか
-                if (Minesite.SharedMinedResource >= carryingCapacity)
+            if (timer <= 0f)
+            {
+                int mined = Mathf.RoundToInt(10 * MiningSkill);
+
+
+                //MinedResource += mined;
+                //Debug.Log($"採掘完了{mined}(合計{MinedResource})");
+                Minesite.AddResouce(mined);
+                Debug.Log($"採掘完了{mined}");
+
+                MinedResource = 0;
+
+                timer = Random.Range(1f, 15f);
+                // 掘り終わったら運ぶという状態にします
+
+                if (Job == JobType.Miner)
 
                 {
-                    carryingAmount = Minesite.TakeResource(carryingCapacity);
-                    Debug.Log($"{name}が{carryingAmount}分、資源を回収しました");
-                }
-
-                else
-                {
-                    //採掘場の旧友資産がキャパシティに到達していなかったら、自分も採掘を行う
+                    //掘り終わったらもう一度採掘します
                     State = ColonistState.Mine;
+
                 }
 
+                else if (Job == JobType.Carrier)
+
+                {
+                    //掘り終わったら運ぶという状態にする
+                    State = ColonistState.Carry;
+                    //移動先を倉庫の位置にする
+                    targetPosition = Warehouse.position;
+
+                    //採掘場の共有資産が自分が持てるキャパシティに到達しているか
+                    if (Minesite.SharedMinedResource >= carryingCapacity)
+
+                    {
+                        carryingAmount = Minesite.TakeResource(carryingCapacity);
+                        Debug.Log($"{name}が{carryingAmount}分、資源を回収しました");
+                    }
+
+                    else
+                    {
+                        //採掘場の旧友資産がキャパシティに到達していなかったら、自分も採掘を行う
+                        State = ColonistState.Mine;
+                    }
+
+
+                }
 
             }
-
         }
     }
 
