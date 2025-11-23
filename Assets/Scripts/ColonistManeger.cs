@@ -2,17 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
-public class ColonistManeger : MonoBehaviour
+public class ColonistManager : MonoBehaviour
 {
-
     /// <summary>
-    /// []は配列と言い、1つの変数の中で複数のcolonistAIを管理できる。
+    /// []は配列と言い、一つの変数の中で複数のColonistAIを管理できます。
     /// </summary>
     public ColonistAI[] Colonists;
 
     /// <summary>
-    /// コロニストのPrefab 
+    /// コロニストのPrefab
     /// </summary>
     public GameObject ColonistPrefab;
 
@@ -24,13 +22,11 @@ public class ColonistManeger : MonoBehaviour
     /// <summary>
     /// UnityEditorからColonistUIManager達を参照
     /// </summary>
-
     public ColonistUIManager[] ColonistUIManagers;
 
     /// <summary>
     /// 採掘場の位置
     /// </summary>
-    
     public Transform MinePoint;
 
     /// <summary>
@@ -39,90 +35,99 @@ public class ColonistManeger : MonoBehaviour
     public Transform WarehousePoint;
 
     /// <summary>
-    /// 住人につけられる名前
-    /// </summary>
-    private string[] possibleNames = {
-    "Taro",
-    "Hanako",
-    "Ken",
-    "Mika",
-    "Aki",
-    };
-
-    private List<string> usedName =new List<string>();
-    private string GetUniqueName() 
-    {
-        string name;
-        //doの中に書かれている処理をwhileの条件の間、ｌ繰り返す
-        do {
-            name = possibleNames[Random.Range(0, possibleNames.Length)];
-        } while (usedName.Contains(name)&&
-        usedName.Count<possibleNames.Length);
-        
-        //listにランダムに指定された名前を追加する
-        usedName.Add(name);
-        //stringのメソッド()の場合はstringの何かをかえしてあげる必要あり
-        return name;
-    }
-
-    /// <summary>
     /// 市場の位置
     /// </summary>
     public Transform MarketPoint;
 
+    /// <summary>
+    /// 食事場の位置
+    /// </summary>
+    public Transform BakeryPoint;
+
+    /// <summary>
+    /// 住人につけられる名前
+    /// </summary>
+    private string[] possibleNames ={
+        "Taro",
+        "Hanako",
+        "Ken",
+        "Mika",
+        "Aki"
+        };
+
+    private List<string> usedName = new List<string>();
+
+    private string GetUniqueName()
+    {
+        string name;
+        // doの中に書かれている処理をwhileの条件の間、繰り返します
+        do
+        {
+            name =
+                possibleNames[Random.Range(0, possibleNames.Length)];
+        } while (usedName.Contains(name) &&
+            usedName.Count < possibleNames.Length);
+        // Listにランダムに指定された名前を追加します
+        usedName.Add(name);
+        // stringのメソッド()の場合はstringの何かを返してあげないといけない
+        return name;
+    }
+
+
 
     private void Start()
     {
-        //コロニストの数のColonisitAIを準備
-        Colonists = new ColonistAI[ColonistCount]; 
-
-        for(int i=0;i<ColonistCount; i++)
+        // コロニストの数分のColonistAIを準備
+        Colonists = new ColonistAI[ColonistCount];
+        // コロニストの数分の処理を実行する
+        for (int i = 0; i < ColonistCount; i++)
         {
-
-            //登場する位置を決める(1体目は原点、2体目はx軸正の方向に2m..)
-             Vector3 position = new Vector3(i * 2, 1, 0);
-
-            //GameObjectをScene内に生成します
+            // 登場する位置を決める(1体目は原点、2体目はX軸正の方向に2m...)
+            Vector3 position = new Vector3(i * 2, 1, 0);
+            // GameObjectをScene内に生成します
             GameObject instantiateObject =
-            Instantiate(ColonistPrefab, position, Quaternion.identity);
+                Instantiate(ColonistPrefab, position, Quaternion.identity);
 
-            //一斉命令用のColonistAIを生成したGameObjectから取得
+            // 一斉命令用のColonistAIを生成したGameObjectから取得
             Colonists[i] = instantiateObject.GetComponent<ColonistAI>();
 
-            //生成された住人に名前をつける
+            // 生成された住人に名前をつけます
             Colonists[i].gameObject.name = GetUniqueName();
 
-            //コロニストに採掘場の場所を教える
+            // コロニストに採掘場への場所を教える
             Colonists[i].MinePoint = MinePoint.position;
 
-            //コロニストに倉庫の場所を教える
-            Colonists[i].WareHouse = WarehousePoint;
+            // コロニストに倉庫の場所を教える
+            Colonists[i].Warehouse = WarehousePoint;
 
-            //コロニストにマーケットの位置を教える
+            // コロニストに市場の場所を教える
             Colonists[i].MarketPosition = MarketPoint;
 
-            //コロニストのUI表示陽のマネージャーに生成されたColonistAIをセット
+            // コロニストに食事場の場所を教える
+            Colonists[i].BakeryPosition = BakeryPoint;
+
+            // コロニストにbakeryの状態を教える
+            Colonists[i].Bakery = BakeryPoint.GetComponent<Bakery>();
+
+            // コロニストのUI表示用のマネージャーに生成されたColonistAIをセット
             ColonistUIManagers[i].SetColonistAI(Colonists[i]);
         }
     }
 
+
+
     // Update is called once per frame
     void Update()
     {
+        // キーボードのスペースキーが押されたら
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
-            
-            //for文は(初期値、初期値が指定の値になるまで、初期値を増減させる)という書き方
-            //初期値が指定の値になるまでの回数処理を行う
-        for (int i = 0;i< Colonists.Length; i++)
-
+            // for文は(初期値,初期値が指定の値になるまで,初期値を増減させる)という書き方
+            // 初期値が指定の値になるまでの回数処理を行う
+            for (int i = 0; i < Colonists.Length; i++)
             {
-
                 Colonists[i].State = ColonistAI.ColonistState.Mine;
-
             }
         }
-        
-
     }
 }
