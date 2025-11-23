@@ -15,9 +15,19 @@ public class ColonistAI : MonoBehaviour
         Rest,       // 休憩
         Eat,        // 食事 
         Dead       // 死亡
+
     }
 
     public ColonistState State;
+
+    public enum JobType{
+Invalid = -1,//定義されていない
+        Miner,//採掘者
+        Carrier//運搬者 
+
+}
+    //一旦全ての住人は採掘者とする
+    public JobType Job = JobType.Miner;
 
     /// <summary>
     /// コロニストの状態を変更するためのタイマー
@@ -132,6 +142,23 @@ public class ColonistAI : MonoBehaviour
     /// ベーカリーの機能
     /// </summary>
     public Bakery Bakery;
+
+
+    /// <summary>
+    /// 採掘場の機能
+    /// </summary>
+    public MineSite Minesite;
+
+
+    /// <summary>
+    /// 運搬中の採掘資産
+    /// </summary>
+    private float carryingAmount = 0f;
+
+    /// <summary>
+    /// コロニストが持てる採掘資産の最大量
+    /// </summary>
+    private float carryingCapacity = 10f;
 
     void Start()
     {
@@ -302,6 +329,29 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private void HandleMine()
     {
+
+        if (Job == JobType.Carrier)
+        {
+            //採掘場の共有資産が自分が持てるキャパシティに到達しているか
+            if (Minesite.SharedMinedResource >= carryingCapacity)
+
+            {
+                carryingAmount = Minesite.TakeResource(carryingCapacity);
+                Debug.Log($"{name}が{carryingAmount}分、資源を回収しました");
+
+                State = ColonistState.Carry;
+
+                //移動先を倉庫の位置にする
+                targetPosition = Warehouse.position;
+                
+                //ここから下の処理は行わない
+                return;
+
+            }
+                   
+
+        }
+                
         // 仮で採掘アニメーション再生の代わりにログを出力します
         Debug.Log("Colonist is mining!");
 
@@ -322,14 +372,51 @@ public class ColonistAI : MonoBehaviour
         if (timer <= 0f)
         {
             int mined = Mathf.RoundToInt(10 * MiningSkill);
-            MinedResource += mined;
-            Debug.Log($"採掘完了{mined}(合計{MinedResource})");
+
+
+            //MinedResource += mined;
+            //Debug.Log($"採掘完了{mined}(合計{MinedResource})");
+            Minesite.AddResouce(mined);
+            Debug.Log($"採掘完了{mined}");
+
+            MinedResource = 0;
 
             timer = Random.Range(1f, 15f);
             // 掘り終わったら運ぶという状態にします
-            State = ColonistState.Carry;
-            // 移動先を倉庫の位置にする
-            targetPosition = Warehouse.position;
+
+            if (Job == JobType.Miner)
+
+            {
+                //掘り終わったらもう一度採掘します
+                State = ColonistState.Mine;
+
+            }
+
+            else if (Job == JobType.Carrier)
+
+            {
+                //掘り終わったら運ぶという状態にする
+                State = ColonistState.Carry;
+                                //移動先を倉庫の位置にする
+                targetPosition = Warehouse.position;
+
+                //採掘場の共有資産が自分が持てるキャパシティに到達しているか
+                if (Minesite.SharedMinedResource >= carryingCapacity)
+
+                {
+                    carryingAmount = Minesite.TakeResource(carryingCapacity);
+                    Debug.Log($"{name}が{carryingAmount}分、資源を回収しました");
+                }
+
+                else
+                {
+                    //採掘場の旧友資産がキャパシティに到達していなかったら、自分も採掘を行う
+                    State = ColonistState.Mine;
+                }
+
+
+            }
+
         }
     }
 
@@ -338,7 +425,8 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private void HandleCarry()
     {
-        transform.position = Vector3.MoveTowards(
+        
+                transform.position = Vector3.MoveTowards(
               transform.position, targetPosition, MoveSpeed * Time.deltaTime);
 
         // 体力が回復するまで休ませるか。
@@ -353,8 +441,11 @@ public class ColonistAI : MonoBehaviour
             if (warehouse != null)
             {
                 // 倉庫に採掘した量を追加する
-                warehouse.Store(MinedResource);
-                // 倉庫に置いたので、手持ちの採掘量を0にする
+                //carringAmountはfloat型なのでint型でキャストします。
+                //キャストとは(型)変数で変数を型に変換します。
+                //今回はfloat(小数点付の値)をint(整数)に変換しました。          
+                warehouse.Store((int)carryingAmount);
+                // 倉庫に置いたので、運搬中の採掘量を0にする
                 MinedResource = 0;
             }
 

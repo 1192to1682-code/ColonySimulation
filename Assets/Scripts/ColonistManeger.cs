@@ -97,6 +97,9 @@ public class ColonistManager : MonoBehaviour
             // コロニストに採掘場への場所を教える
             Colonists[i].MinePoint = MinePoint.position;
 
+            //コロニストに採掘場の機能を教える
+            Colonists[i].Minesite = MinePoint.GetComponent<MineSite>();
+
             // コロニストに倉庫の場所を教える
             Colonists[i].Warehouse = WarehousePoint;
 

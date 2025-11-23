@@ -9,6 +9,9 @@ public class ColonistUIManager : MonoBehaviour
 
     private ColonistStatusUI colonistStatusUI;
 
+    private JobSwitchUI switchUI;
+
+
     public TextMeshProUGUI NameText;
 
 
@@ -23,6 +26,7 @@ public class ColonistUIManager : MonoBehaviour
         //このコンポーネントがついかされたgameObjectの階層下から取得する
         colonistHealthUI = GetComponentInChildren<ColonistHealthUI>();
         colonistStatusUI = GetComponentInChildren<ColonistStatusUI>();
+        switchUI = GetComponentInChildren<JobSwitchUI>();
         
     }
 
@@ -35,6 +39,10 @@ public class ColonistUIManager : MonoBehaviour
         colonistHealthUI.ColonistAI = colonistAI;
         colonistStatusUI.ColonistAI = colonistAI;
 
+        //JobSwitchUIにcolonistAIを割り当てる
+        switchUI.SetSwitchUI(colonistAI);
+
+        //名前の表示を行う
         NameText.text = colonistAI.gameObject.name;
 
     }
