@@ -20,6 +20,19 @@ public class Warehouse : MonoBehaviour
         get { return maxStockAmount; }
     }
 
+    //交換できるかの判定用フラグ
+    public bool HasEnough(float amount)
+    {
+        //引数の個数より在庫数が多ければtrueを返す
+        return StoredResources >= amount;
+    }
+
+    public bool IsFull()
+    {
+        return maxStockAmount <= StoredResources;
+    
+    }
+
     /// <summary>
     /// 引数の数、倉庫が保持する資源量を増やします
     /// </summary>
@@ -29,6 +42,15 @@ public class Warehouse : MonoBehaviour
         StoredResources += amount;
         Debug.Log($"倉庫に{amount}納品" +
             $"（合計:{StoredResources}）");
+    }
+
+    public void Withdraw(int amount)
+    {
+
+        //amountをint型に変更して、0を下回らないようにする     
+    
+        StoredResources = Mathf.Max(0, StoredResources - (int)amount);
+
     }
 
 }
