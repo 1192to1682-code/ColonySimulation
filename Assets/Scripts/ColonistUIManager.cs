@@ -22,7 +22,7 @@ public class ColonistUIManager : MonoBehaviour
     void Awake()
     {
 
-        //GercomponentInchildrenはヒエラルキーwindowの
+        //GetcomponentInchildrenはヒエラルキーwindowの
         //このコンポーネントがついかされたgameObjectの階層下から取得する
         colonistHealthUI = GetComponentInChildren<ColonistHealthUI>();
         colonistStatusUI = GetComponentInChildren<ColonistStatusUI>();
