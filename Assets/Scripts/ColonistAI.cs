@@ -63,6 +63,21 @@ public class ColonistAI : MonoBehaviour
         get { return currentHealth; }
     }
 
+    public float GetHunger
+    {
+        get {
+            return hunger;
+        
+        }
+    }
+
+    public float GetStress
+    {
+        get { return stress;
+        }
+    }
+
+
     /// <summary>
     /// ”æ˜J‰ñ•œ‘¬“x
     /// </summary>
