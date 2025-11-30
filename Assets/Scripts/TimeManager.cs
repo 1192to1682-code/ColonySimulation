@@ -39,8 +39,7 @@ public class TimeManager : MonoBehaviour
 
         {
 
-            case 0f:
-                
+            case 0f:                
                 PauseButton.image.color = Color.white;
                 PlayButton.image.color = Color.gray5;
                 Speed2Xbutton.image.color = Color. gray5;

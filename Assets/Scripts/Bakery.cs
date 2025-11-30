@@ -7,7 +7,7 @@ public class Bakery : MonoBehaviour
     /// <summary>
     /// 倉庫資源10→　食料1に変えるレート
     /// </summary>
-    public float ExchangeRate = 10f;
+    public float ExchangeRate = 100f;
 
     /// <summary>
     /// 再生速度(毎秒)
@@ -55,10 +55,8 @@ public class Bakery : MonoBehaviour
             //毎秒、FoodStockをProduceRateに合わせて加算していく
             FoodStock += ProduceRate ;
 
-
         }
-
-    
+   
     }
 
 
