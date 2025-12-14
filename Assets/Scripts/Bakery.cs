@@ -12,7 +12,7 @@ public class Bakery : MonoBehaviour
     /// <summary>
     /// 再生速度(毎秒)
     /// </summary>
-    public float ProduceRate = 1f;
+    public float ProduceRate = 20f;
 
     /// <summary>
     /// 倉庫の中を見たいので参照
@@ -23,12 +23,12 @@ public class Bakery : MonoBehaviour
 
     private void Update()
     {
-
+        //時間を足していって
         timer += Time.deltaTime;
 
+        //1秒を超えたら交換するように調整
         if (ProduceRate <= timer)
         {
-
             ExchangeWithWarehouse();
             timer = 0f;
         }
@@ -48,6 +48,8 @@ public class Bakery : MonoBehaviour
             //Debug.LogError("WarehouseがUnityで設定されていません");
             return;
         }
+
+        //倉庫に十分な在庫があった時
         if (Warehouse.HasEnough(ExchangeRate))
         {
             //倉庫から交換を行う

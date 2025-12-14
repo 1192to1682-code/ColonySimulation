@@ -14,6 +14,7 @@ public class ColonistAI : MonoBehaviour
         Carry,      // 運ぶ
         Rest,       // 休憩
         Eat,        // 食事 
+        Build,     //建築作業
         Dead       // 死亡
 
     }
@@ -24,7 +25,8 @@ public class ColonistAI : MonoBehaviour
     {
         Invalid = -1,//定義されていない
         Miner,//採掘者
-        Carrier//運搬者
+        Carrier,//運搬者
+        Builder //建築作業者
     }
     //一旦全ての住人は採掘者とする
     public JobType Job = JobType.Miner;
@@ -164,6 +166,13 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     public MineSite Minesite;
 
+    public ConstructionSite ConstructionSite;
+
+    /// <summary>
+    /// 建築能力(秒間の作業量)
+    /// </summary>
+    public float BuildPower = 5f;
+
 
     /// <summary>
     /// 運搬中の採掘資産
@@ -273,6 +282,9 @@ public class ColonistAI : MonoBehaviour
             case ColonistState.Mine:
                 HandleMine();
                 break;
+            case ColonistState.Build:
+                HandleBuild();
+                break;
             case ColonistState.Carry:// 運ぶ状態
                 HandleCarry();
                 break;
@@ -306,7 +318,24 @@ public class ColonistAI : MonoBehaviour
             // コロニスト君の状態を動くという状態に変更
             State = ColonistState.Move;
             // ターゲットポジションを決めてあげる
-            targetPosition = MinePoint;
+
+            //もしJobが作業員で、かつ建築現場があって、かつ、建築現場が完了していない場合
+            if (Job == JobType.Builder
+                && ConstructionSite != null
+                && !ConstructionSite.IsCompleted)
+            {
+                //次に行く場所は建築現場にしてあげる
+                targetPosition = ConstructionSite.GetBuildposition();
+
+
+            }
+            //そうじゃなかったら従来通り採掘場に向かいます
+            else {
+
+                targetPosition = MinePoint;
+
+            }
+                        
             timer = 2f;
         }
     }
@@ -332,11 +361,23 @@ public class ColonistAI : MonoBehaviour
         // if文はもし、小括弧内の条件だったら、中括弧の中の処理を行う
         // 自分の位置と、ターゲットの位置が10cmより近くなったら
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+
         {
+            if (Job == JobType.Builder
+                && ConstructionSite != null
+                    && !ConstructionSite.IsCompleted)
+            {
+                State = ColonistState.Build;
+                timer = Random.Range(3f, 8f);
+
+            }
+            else { 
+            
             // 次の行動を行う
             State = ColonistState.Mine;
             // 掘削時間は1秒から5秒までのランダム
             timer = Random.Range(1f, 5f);
+            }
         }
 
     }
@@ -445,6 +486,52 @@ public class ColonistAI : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// 建築中の行動
+    /// </summary>
+    private void HandleBuild()
+    {
+        if (ConstructionSite==null || ConstructionSite.IsCompleted)
+        {
+            //すでに建物が完成しているので帰ります
+            State = ColonistState.Idle;
+            timer = 1f;
+            return;
+
+        }
+        //回って作業中だということをプレイヤーに伝えます
+        transform.Rotate(Vector3. up * 60f * Time.deltaTime);
+
+        currentHealth -= FatigueRate * 5f * Time.deltaTime;
+        stress += 2f * Time.deltaTime;
+        float workAmount = BuildPower * Time.deltaTime;
+
+        bool worked = ConstructionSite.Build(workAmount);
+
+        if (!worked)
+        {
+            //疲れているはずなので休憩にいかせる
+            State = ColonistState.Rest;
+            timer = 2f;
+            return;
+        }
+        //体力が少なすぎる場合は、
+        if (currentHealth <= 20f)
+        {
+            //その場で寝る
+            State = ColonistState.Sleep;
+            return;
+        }
+        if (ConstructionSite.IsCompleted)
+        {
+            Debug.Log($"{name}は建築作業を完了しました");
+            //休む
+            State = ColonistState.Rest;
+            timer = 3f;
+
+        }
+
+    }
     /// <summary>
     /// 倉庫への移動行動
     /// </summary>
