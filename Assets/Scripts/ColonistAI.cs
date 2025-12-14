@@ -491,6 +491,16 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private void HandleBuild()
     {
+        //UIから直接Jobを変更されると、TargetPositionが設定されないまま、
+        //HandleBuild()がスタートするので,targetPositionが建築現場の場所じゃなかったら、
+        //StateをIdleに変更する
+
+        if (targetPosition!=ConstructionSite.GetBuildposition())
+        {
+            State = ColonistState.Idle;
+            return;
+
+        }
         if (ConstructionSite==null || ConstructionSite.IsCompleted)
         {
             //すでに建物が完成しているので帰ります

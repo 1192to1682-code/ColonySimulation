@@ -97,7 +97,10 @@ public class ConstructionSite : MonoBehaviour
         if (CompletedPrefab != null)
         {
             //CompletedPrefabをConstruvtionSiteの位置に生成します
-            Instantiate(CompletedPrefab, this.transform.position, Quaternion.identity);
+            Instantiate(CompletedPrefab,//何を生成するか
+                this.transform.position, //位置はどこに生成するか
+                CompletedPrefab.transform.rotation//回転はどうするか
+                );
         }
 
         //ConstruvtionSiteのObjectのアクティブを切ります

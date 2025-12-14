@@ -5,6 +5,10 @@ public class Bakery : MonoBehaviour
     public float FoodStock = 100;
 
     /// <summary>
+    /// 食糧庫の最大値を100にする
+    /// </summary>
+    public float MaxFoodStock=100f;
+    /// <summary>
     /// 倉庫資源10→　食料1に変えるレート
     /// </summary>
     public float ExchangeRate = 100f;
@@ -46,6 +50,12 @@ public class Bakery : MonoBehaviour
 
             //LogErrorにすると、ゲーム実行がストップする。
             //Debug.LogError("WarehouseがUnityで設定されていません");
+            return;
+        }
+
+        //現在の食料の値が最大量をこえていたら
+        if(FoodStock> MaxFoodStock)
+        {
             return;
         }
 

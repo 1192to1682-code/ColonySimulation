@@ -1507,6 +1507,7 @@ MonoBehaviour:
   WarehousePoint: {fileID: 645200574}
   MarketPoint: {fileID: 152603596}
   BakeryPoint: {fileID: 732279074}
+  ConstructionPoint: {fileID: 1527544910}
 --- !u!1 &385990937
 GameObject:
   m_ObjectHideFlags: 0
@@ -2647,6 +2648,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bakery
   FoodStock: 100
+  MaxFoodStock: 50
   ExchangeRate: 20
   ProduceRate: 10
   Warehouse: {fileID: 2057501929}
@@ -4384,7 +4386,7 @@ Transform:
   m_GameObject: {fileID: 1527544908}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.48048, y: 0.73821, z: 4.09288}
+  m_LocalPosition: {x: -10, y: 0.73821, z: 4.09288}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

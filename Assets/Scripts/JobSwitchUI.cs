@@ -45,9 +45,16 @@ public class JobSwitchUI : MonoBehaviour
         //ÇªÇ§Ç∂Ç·Ç»Ç≠Ç¡Çƒâ^î¿é“ÇæÇ¡ÇΩÇÁ
         else if (ColonistAI.Job == ColonistAI.JobType.Carrier)
         {
+            //åöízçÏã∆ÉVÉÉÇ…ïœçXÇµÇ‹Ç∑
+            ColonistAI.Job = ColonistAI.JobType.Builder;
+
+        }
+        else if (ColonistAI.Job==ColonistAI.JobType.Builder)
+        {
             ColonistAI.Job = ColonistAI.JobType.Miner;
 
         }
+
         UpdateLabel();
 
     }
