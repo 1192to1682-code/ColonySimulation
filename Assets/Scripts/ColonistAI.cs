@@ -184,6 +184,11 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private float carryingCapacity = 10f;
 
+    /// <summary>
+    /// Animation制御用のclass
+    /// </summary>
+    public ColonistAnimatorcontroller ColonistAnimatorcontroller;
+
     void Start()
     {
 
@@ -309,6 +314,9 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private void HandleIdle()
     {
+
+        ColonistAnimatorcontroller.PlayIdleAnimation();
+        
         // 現在の体力をじわじわっと回復させる 
         currentHealth += RecoveryRate * 2f * Time.deltaTime;
 
@@ -345,11 +353,17 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private void HandleMove()
     {
-        transform.position = Vector3.MoveTowards(
-               transform.position, targetPosition, MoveSpeed * Time.deltaTime);
 
+        ColonistAnimatorcontroller.PlayWalkingAnimation();
+
+        transform.position = Vector3.MoveTowards(
+        transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+        transform.LookAt(targetPosition);
         // 現在の体力値から1秒間で5ポイント体力を減らします
         currentHealth -= FatigueRate * 5f * Time.deltaTime;
+
+        transform.LookAt(targetPosition);
+
 
         // 現在の体力が20ポイントを下回ったら
         if (currentHealth <= 20f)
@@ -387,6 +401,9 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private void HandleMine()
     {
+        ColonistAnimatorcontroller.PlayMineAnimation();
+
+        transform.LookAt(targetPosition);
 
         if (Job == JobType.Carrier)
         {
@@ -423,7 +440,7 @@ public class ColonistAI : MonoBehaviour
 
             // 毎フレーム回転させ続ける
             // 1秒間にminingSkillが3の人は360°一回転できる
-            transform.Rotate(Vector3.up * 120f * MiningSkill * Time.deltaTime);
+            //transform.Rotate(Vector3.up * 120f * MiningSkill * Time.deltaTime);
 
             // 現在の体力を1秒間に10ポイント減らします
             currentHealth -= FatigueRate * 10f * Time.deltaTime;
@@ -548,8 +565,9 @@ public class ColonistAI : MonoBehaviour
     private void HandleCarry()
     {
         
-                transform.position = Vector3.MoveTowards(
-              transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+     transform.position = Vector3.MoveTowards(
+     transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+     transform.LookAt(targetPosition);
 
         // 体力が回復するまで休ませるか。
         // 休憩する場所に行って、休憩する。
@@ -594,17 +612,24 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private void HandleRest()
     {
+    
+
+
         // ターゲットポジションが市場じゃなかったら市場に変更する
         if (targetPosition != MarketPosition.position)
         {
             targetPosition = MarketPosition.position;
         }
 
-        transform.position = Vector3.MoveTowards(
+     transform.position = Vector3.MoveTowards(
      transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+     transform.LookAt(targetPosition);
+
         // 市場の位置に近づいたら
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
+
+            ColonistAnimatorcontroller.PlayRestAnimation();
             // ストレスも1秒間に5ポイント緩和
             stress -= 5f * Time.deltaTime;
             // 現在の体力をじわじわっと回復させる 
@@ -626,6 +651,8 @@ public class ColonistAI : MonoBehaviour
     /// </summary>
     private void HandleSleep()
     {
+
+        ColonistAnimatorcontroller.PlaySleepingAnimation();
         //シーン上からhouseを検索する
         House house = FindAnyObjectByType<House>();
 
@@ -635,8 +662,8 @@ public class ColonistAI : MonoBehaviour
             Debug.Log(house.GetHousePosition());
             targetPosition = house.GetHousePosition();
             transform.position = Vector3.MoveTowards(
-                transform.position, targetPosition, MoveSpeed * Time.deltaTime);
-
+            transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+            transform.LookAt(targetPosition);
             if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
             {
                 //家なので回復する値にボーナスをつけたい。
@@ -677,7 +704,9 @@ public class ColonistAI : MonoBehaviour
         }
 
         transform.position = Vector3.MoveTowards(
-           transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+        transform.position, targetPosition, MoveSpeed * Time.deltaTime);
+        transform.LookAt(targetPosition);
+        
 
         // ベーカリーの位置に近づいたら
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
