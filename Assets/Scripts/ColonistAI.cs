@@ -362,9 +362,6 @@ public class ColonistAI : MonoBehaviour
         // 現在の体力値から1秒間で5ポイント体力を減らします
         currentHealth -= FatigueRate * 5f * Time.deltaTime;
 
-        transform.LookAt(targetPosition);
-
-
         // 現在の体力が20ポイントを下回ったら
         if (currentHealth <= 20f)
         {
@@ -402,9 +399,6 @@ public class ColonistAI : MonoBehaviour
     private void HandleMine()
     {
         ColonistAnimatorcontroller.PlayMineAnimation();
-
-        transform.LookAt(targetPosition);
-
         if (Job == JobType.Carrier)
         {
             //採掘場の共有資産が自分が持てるキャパシティに到達しているか
@@ -435,8 +429,9 @@ public class ColonistAI : MonoBehaviour
             }
         }
 
-            // 仮で採掘アニメーション再生の代わりにログを出力します
-            Debug.Log("Colonist is mining!");
+        ColonistAnimatorcontroller.PlayMineAnimation();
+                // 仮で採掘アニメーション再生の代わりにログを出力します
+        Debug.Log("Colonist is mining!");
 
             // 毎フレーム回転させ続ける
             // 1秒間にminingSkillが3の人は360°一回転できる
@@ -568,6 +563,7 @@ public class ColonistAI : MonoBehaviour
      transform.position = Vector3.MoveTowards(
      transform.position, targetPosition, MoveSpeed * Time.deltaTime);
      transform.LookAt(targetPosition);
+        ColonistAnimatorcontroller.PlayWalkingAnimation();
 
         // 体力が回復するまで休ませるか。
         // 休憩する場所に行って、休憩する。
@@ -586,7 +582,7 @@ public class ColonistAI : MonoBehaviour
                 //今回はfloat(小数点付の値)をint(整数)に変換しました。          
                 warehouse.Store((int)carryingAmount);
                 // 倉庫に置いたので、運搬中の採掘量を0にする
-                MinedResource = 0;
+                carryingAmount = 0;
             }
 
             // 体力があった場合
@@ -613,8 +609,6 @@ public class ColonistAI : MonoBehaviour
     private void HandleRest()
     {
     
-
-
         // ターゲットポジションが市場じゃなかったら市場に変更する
         if (targetPosition != MarketPosition.position)
         {
@@ -624,6 +618,7 @@ public class ColonistAI : MonoBehaviour
      transform.position = Vector3.MoveTowards(
      transform.position, targetPosition, MoveSpeed * Time.deltaTime);
      transform.LookAt(targetPosition);
+        ColonistAnimatorcontroller.PlayWalkingAnimation();
 
         // 市場の位置に近づいたら
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
@@ -664,8 +659,12 @@ public class ColonistAI : MonoBehaviour
             transform.position = Vector3.MoveTowards(
             transform.position, targetPosition, MoveSpeed * Time.deltaTime);
             transform.LookAt(targetPosition);
+            ColonistAnimatorcontroller.PlayWalkingAnimation();
+
             if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
             {
+                ColonistAnimatorcontroller.PlaySleepingAnimation();
+
                 //家なので回復する値にボーナスをつけたい。
                 currentHealth += hunger*house.RecoveryBonus * 8f * Time.deltaTime;
 
@@ -677,6 +676,8 @@ public class ColonistAI : MonoBehaviour
         }
         else//家がないならその場で寝る
         {
+            ColonistAnimatorcontroller.PlaySleepingAnimation();
+            
             // 1秒間に8*house.RecoveryBonusポイント回復させる
             currentHealth += hunger * 8f * Time.deltaTime;
 
@@ -706,6 +707,7 @@ public class ColonistAI : MonoBehaviour
         transform.position = Vector3.MoveTowards(
         transform.position, targetPosition, MoveSpeed * Time.deltaTime);
         transform.LookAt(targetPosition);
+        ColonistAnimatorcontroller.PlayWalkingAnimation();
         
 
         // ベーカリーの位置に近づいたら
