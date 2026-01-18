@@ -19,6 +19,8 @@ public class JobSwitchUI : MonoBehaviour
     /// </summary>
     public TextMeshProUGUI JobLabel;
 
+    public AudioClip JobSwitchSEClip;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     /// <summary>
@@ -36,6 +38,9 @@ public class JobSwitchUI : MonoBehaviour
 
     public void ToggleJob()
     {
+        //ボタンのスイッチ音を鳴らす
+        SEManager.Instance.PlaySE(JobSwitchSEClip);
+
 
         if (ColonistAI.Job == ColonistAI.JobType.Miner)
         {
